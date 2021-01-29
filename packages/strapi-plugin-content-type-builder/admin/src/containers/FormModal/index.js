@@ -12,7 +12,7 @@ import {
   useQuery,
   InputsIndex,
 } from 'strapi-helper-plugin';
-import { Button, Text, Padded } from '@buffetjs/core';
+import { Button, Text, Padded, Select } from '@buffetjs/core';
 import { Inputs } from '@buffetjs/custom';
 
 import { useHistory, useLocation } from 'react-router-dom';
@@ -49,6 +49,9 @@ import canEditContentType from './utils/canEditContentType';
 
 const FormModal = () => {
   const [state, setState] = useState(INITIAL_STATE_DATA);
+  const [customReactComponentBtn, setCustomReactComponentBtn] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [selectedReactComponent, setSelectedReactComponent] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reducerState, dispatch] = useReducer(reducer, initialState, init);
   const { push } = useHistory();
@@ -57,7 +60,15 @@ const FormModal = () => {
   const query = useQuery();
   const attributeOptionRef = useRef();
 
+  const customReactComponentsStub = [
+    { element: 'First', value: 'first' },
+    { element: 'Second', value: 'second' },
+    { element: 'Third', value: 'third' },
+  ];
+
   const {
+    // FIXME move the mechanism from a current context method to useDataManager
+    // addCustomReactComponent,
     addAttribute,
     addCreatedComponentToDynamicZone,
     allComponentsCategories,
@@ -1294,6 +1305,25 @@ const FormModal = () => {
                               );
                             }
 
+                            if (customReactComponentBtn) {
+                              return (
+                                <div
+                                  className={`col-${input.size || 6}`}
+                                  key="customReactcomponent"
+                                >
+                                  <Padded bottom size="smd">
+                                    <Select
+                                      name="name"
+                                      onChange={({ target: { value } }) =>
+                                        setSelectedReactComponent(value)}
+                                      options={customReactComponentsStub.map(e => e.value)}
+                                      value="customReactComponent"
+                                    />
+                                  </Padded>
+                                </div>
+                              );
+                            }
+
                             return (
                               <div className={`col-${input.size || 6}`} key={input.name}>
                                 <Inputs
@@ -1410,31 +1440,48 @@ const FormModal = () => {
                     </Button>
                   )}
                   {isCreating && state.attributeType === 'dynamiczone' && (
-                    <CustomButton
-                      type={isCreating ? 'submit' : 'button'}
-                      color={
-                        (isCreatingContentType ||
-                          isCreatingComponent ||
-                          isEditingCategory ||
+                    <>
+                      <CustomButton
+                        type={isCreating ? 'submit' : 'button'}
+                        color={
+                          (isCreatingContentType ||
+                            isCreatingComponent ||
+                            isEditingCategory ||
+                            (state.modalType === 'addComponentToDynamicZone' &&
+                              state.step === '1' &&
+                              !isCreatingComponentFromAView)) &&
+                          !isCreating
+                            ? 'success'
+                            : 'primary'
+                        }
+                        onClick={e => handleSubmit(e, true)}
+                        icon={
+                          (isCreatingAttribute &&
+                            !isCreatingComponentFromAView &&
+                            state.step !== '1') ||
                           (state.modalType === 'addComponentToDynamicZone' &&
-                            state.step === '1' &&
-                            !isCreatingComponentFromAView)) &&
-                        !isCreating
-                          ? 'success'
-                          : 'primary'
-                      }
-                      onClick={e => handleSubmit(e, true)}
-                      icon={
-                        (isCreatingAttribute &&
-                          !isCreatingComponentFromAView &&
-                          state.step !== '1') ||
-                        (state.modalType === 'addComponentToDynamicZone' &&
-                          isCreatingComponentFromAView) ||
-                        (isCreatingComponentFromAView && state.step === '2')
-                      }
-                    >
-                      {getButtonSubmitMessage()}
-                    </CustomButton>
+                            isCreatingComponentFromAView) ||
+                          (isCreatingComponentFromAView && state.step === '2')
+                        }
+                      >
+                        {getButtonSubmitMessage()}
+                      </CustomButton>
+                      <CustomButton
+                        type="button"
+                        color="primary"
+                        onClick={setCustomReactComponentBtn(true)}
+                        // icon={
+                        //   (isCreatingAttribute &&
+                        //     !isCreatingComponentFromAView &&
+                        //     state.step !== '1') ||
+                        //   (state.modalType === 'addComponentToDynamicZone' &&
+                        //     isCreatingComponentFromAView) ||
+                        //   (isCreatingComponentFromAView && state.step === '2')
+                        // }
+                      >
+                        {getTrad('form.button.add-custom-react-component')}
+                      </CustomButton>
+                    </>
                   )}
                   {state.attributeType !== 'dynamiczone' && (
                     <CustomButton

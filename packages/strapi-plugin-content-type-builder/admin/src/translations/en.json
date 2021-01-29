@@ -107,6 +107,7 @@
   "form.attribute.text.option.short-text": "Short text",
   "form.attribute.text.option.short-text.description": "Best for titles, names, links (URL). It also enables exact search on the field.",
   "form.button.add-components-to-dynamiczone": "Add components to the zone",
+  "form.button.add-custom-react-component": "Add custom react component",
   "form.button.add-field": "Add another field",
   "form.button.add-first-field-to-created-component": "Add first field to the component",
   "form.button.add.field.to.collectionType": "Add another field to this collection type",
